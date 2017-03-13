@@ -1,30 +1,21 @@
+/*jslint node: true */
 'use strict';
+var express = require('express');
+var config = require('./config/config.js');
+var app = express();
 
-const Hapi = require('hapi');
+var host = process.env.IP || '0.0.0.0';
+var port = process.env.PORT || 4000;
+var sessionSecret = process.env.SESSION_SECRET || 'e70a1e1ee4b8f662f78';
 
-const server = new Hapi.Server();
-server.connection({ port: 3000, host: 'localhost' });
+app.use('/static', express.static(__dirname + '/static'));
+app.use('/bower_components', express.static(__dirname + '/bower_components'));
+config(app, host, port, sessionSecret);
 
-server.route({
-    method: 'GET',
-    path: '/',
-    handler: function (request, reply) {
-        reply('Hello, world!');
-    }
-});
-
-server.route({
-    method: 'GET',
-    path: '/{name}',
-    handler: function (request, reply) {
-        reply('Hello, ' + encodeURIComponent(request.params.name) + '!');
-    }
-});
-
-server.start((err) => {
-
-    if (err) {
-        throw err;
-    }
-    console.log(`Server running at: ${server.info.uri}`);
+var server = app.listen(port, host, function () {
+  console.log(
+    'Example app listening at http://%s:%s',
+    server.address().address,
+    server.address().port
+  );
 });
